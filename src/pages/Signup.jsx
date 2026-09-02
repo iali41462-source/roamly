@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+
 function Signup() {
 
     const navigate = useNavigate();
@@ -8,44 +9,159 @@ function Signup() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [error, setError] = useState("");
+    const [password_confirmation, setConfirmPassword] = useState("");
 
-    function handleSubmit(event) {
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+
+    async function handleSubmit(event) {
 
         event.preventDefault();
+
         setError("");
+        setLoading(true);
+
 
         // Name validation
-        if (name.trim().length < 3) 
-            { setError("Name must be at least 3 characters.");
-                 return; }
-          // Email validation
+
+        if (name.trim().length < 3) {
+
+            setError(
+                "Name must be at least 3 characters."
+            );
+
+            setLoading(false);
+            return;
+        }
+
+
+        // Email validation
 
         if (!email.includes("@")) {
-            setError("Please enter a valid email address.");
+
+            setError(
+                "Please enter a valid email address."
+            );
+
+            setLoading(false);
             return;
         }
-        
-                // Password validation
+
+
+        // Password validation
 
         if (password.length < 6) {
-            setError("Password must be at least 6 characters.");
+
+            setError(
+                "Password must be at least 6 characters."
+            );
+
+            setLoading(false);
             return;
         }
-        
 
-        if (password !== confirmPassword) {
-            ("Passwords do not match.");
+
+        // Confirm password validation
+
+        if (password !== password_confirmation) {
+
+            setError(
+                "Passwords do not match."
+            );
+
+            setLoading(false);
             return;
         }
 
-        localStorage.setItem("userName", name);
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("userPassword", password);
 
-        navigate("/login");
+        try {
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/api/register",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
+
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        password: password,
+                        password_confirmation: password_confirmation,
+                    }),
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            // Laravel validation error
+
+            if (!response.ok) {
+
+                if (data.errors) {
+
+                    const firstError =
+                        Object.values(data.errors)[0]?.[0];
+
+                    setError(
+                        firstError ||
+                        "Please check your information."
+                    );
+
+                } else {
+
+                    setError(
+                        data.message ||
+                        "Registration failed."
+                    );
+
+                }
+
+                setLoading(false);
+                return;
+            }
+
+
+            // Registration successful
+
+            // localStorage.setItem(
+            //     "token",
+            //     data.token
+            // );
+
+            // localStorage.setItem(
+            //     "user",
+            //     JSON.stringify(data.user)
+            // );
+
+            // localStorage.setItem(
+            //     "isLoggedIn",
+            //     "true"
+            // );
+
+
+            navigate("/");
+
+
+        } catch (error) {
+
+            setError(
+                "Unable to connect to the server."
+            );
+
+        } finally {
+
+            setLoading(false);
+
+        }
     }
+
 
     return (
         <main className="login-page">
@@ -55,6 +171,7 @@ function Signup() {
                 <div className="login-page__brand">
                     <span>Roamly</span>
                 </div>
+
 
                 <div className="login-page__heading">
 
@@ -99,11 +216,13 @@ function Signup() {
                     className="login-form"
                     onSubmit={handleSubmit}
                 >
-                     {error && (
+
+                    {error && (
                         <p className="login-form__error">
                             {error}
                         </p>
                     )}
+
 
                     <div className="login-form__group">
 
@@ -123,6 +242,7 @@ function Signup() {
                         />
 
                     </div>
+
 
                     <div className="login-form__group">
 
@@ -174,7 +294,7 @@ function Signup() {
                             id="confirm-password"
                             type="password"
                             placeholder="Confirm your password"
-                            value={confirmPassword}
+                            value={password_confirmation}
                             onChange={(event) =>
                                 setConfirmPassword(event.target.value)
                             }
@@ -187,8 +307,11 @@ function Signup() {
                     <button
                         type="submit"
                         className="login-form__button"
+                        disabled={loading}
                     >
-                        Create account
+                        {loading
+                            ? "Creating account..."
+                            : "Create account"}
                     </button>
 
                 </form>
@@ -209,5 +332,6 @@ function Signup() {
         </main>
     );
 }
+
 
 export default Signup;

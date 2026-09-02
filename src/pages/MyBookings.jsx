@@ -1,128 +1,164 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function MyBookings() {
 
-    const bookings =
-        JSON.parse(localStorage.getItem("bookings")) || [];
+    const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+
+        async function fetchBookings() {
+
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                setError("Please login to view your bookings.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    "http://127.0.0.1:8000/api/bookings",
+                    {
+                        headers: {
+                            "Accept": "application/json",
+                            "Authorization": `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    setError(
+                        data.message ||
+                        "Unable to load bookings."
+                    );
+                    return;
+                }
+
+                setBookings(data.data);
+
+            } catch (error) {
+
+                setError(
+                    "Unable to connect to the server."
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+        }
+
+        fetchBookings();
+
+    }, []);
+
+
+    if (loading) {
+        return (
+            <main className="my-bookings-page">
+                <div className="my-bookings-page__content">
+                    <p>Loading your bookings...</p>
+                </div>
+            </main>
+        );
+    }
+
+
+    if (error) {
+        return (
+            <main className="my-bookings-page">
+                <div className="my-bookings-page__content">
+                    <p className="my-bookings-page__error">
+                        {error}
+                    </p>
+                </div>
+            </main>
+        );
+    }
+
 
     return (
         <main className="my-bookings-page">
 
-            {/* Hero */}
+            <div className="my-bookings-page__content">
 
-            <section className="my-bookings__hero">
+                <div className="my-bookings-page__header">
 
-                <div className="container">
+                    <p>YOUR JOURNEY</p>
 
-                    <p className="my-bookings__eyebrow">
-                        YOUR JOURNEYS
-                    </p>
+                    <h1>My Bookings</h1>
 
-                    <h1>
-                        My
-                        <span> bookings.</span>
-                    </h1>
-
-                    <p>
-                        Keep track of the journeys you've
-                        planned with Roamly.
-                    </p>
+                    <span>
+                        View and manage your upcoming trips.
+                    </span>
 
                 </div>
 
-            </section>
 
+                {bookings.length === 0 ? (
 
-            {/* Bookings */}
+                    <div className="my-bookings-page__empty">
 
-            <section className="my-bookings">
+                        <h2>No bookings yet</h2>
 
-                <div className="container">
+                        <p>
+                            You haven't booked any trips yet.
+                            Start exploring and plan your next adventure.
+                        </p>
 
-                    {bookings.length === 0 ? (
+                    </div>
 
-                        <div className="my-bookings__empty">
+                ) : (
 
-                            <div className="my-bookings__empty-icon">
-                                ✦
-                            </div>
+                    <div className="my-bookings-list">
 
-                            <p className="my-bookings__label">
-                                NO BOOKINGS YET
-                            </p>
+                        {bookings.map((booking) => (
 
-                            <h2>
-                                Your next adventure
-                                <span> is waiting.</span>
-                            </h2>
-
-                            <p>
-                                You haven't booked a trip yet.
-                                Explore our curated journeys and
-                                find somewhere worth going.
-                            </p>
-
-                            <Link
-                                to="/trips"
-                                className="my-bookings__button"
+                            <article
+                                className="my-booking-card"
+                                key={booking.id}
                             >
-                                Explore trips
-                                <span>↗</span>
-                            </Link>
 
-                        </div>
+                                <div className="my-booking-card__image">
 
-                    ) : (
-
-                        <div className="my-bookings__list">
-
-                            <div className="my-bookings__header">
-
-                                <div>
-
-                                    <p className="my-bookings__label">
-                                        YOUR BOOKINGS
-                                    </p>
-
-                                    <h2>
-                                        Ready to
-                                        <span> explore.</span>
-                                    </h2>
+                                    <img
+                                        src={booking.trip?.image}
+                                        alt={booking.trip?.title}
+                                    />
 
                                 </div>
 
-                                <span className="my-bookings__count">
-                                    {bookings.length}{" "}
-                                    {bookings.length === 1
-                                        ? "booking"
-                                        : "bookings"}
-                                </span>
 
-                            </div>
+                                <div className="my-booking-card__content">
+
+                                    <div className="my-booking-card__top">
+
+                                        <div>
+
+                                            <h2>
+                                                {booking.trip?.title}
+                                            </h2>
+
+                                            <p>
+                                                {booking.trip?.destination?.name ||
+                                                    booking.trip?.location}
+                                            </p>
+
+                                        </div>
 
 
-                            {bookings.map((booking) => (
-
-                                <article
-                                    className="my-booking-card"
-                                    key={booking.id}
-                                >
-
-                                    <div className="my-booking-card__main">
-
-                                        <p className="my-booking-card__label">
-                                            {booking.location}
-                                        </p>
-
-                                        <h3>
-                                            {booking.tripTitle}
-                                        </h3>
-
-                                        <p>
-                                            {booking.duration}
-                                            {" · "}
-                                            {booking.price}
-                                        </p>
+                                        <span
+                                            className={`my-booking-card__status my-booking-card__status--${booking.status}`}
+                                        >
+                                            {booking.status}
+                                        </span>
 
                                     </div>
 
@@ -130,56 +166,61 @@ function MyBookings() {
                                     <div className="my-booking-card__details">
 
                                         <div>
-
-                                            <span>
-                                                Travel date
-                                            </span>
-
+                                            <span>Travel date</span>
                                             <strong>
-                                                {booking.date}
+                                                {booking.travel_date}
                                             </strong>
-
                                         </div>
 
-
                                         <div>
-
-                                            <span>
-                                                Travelers
-                                            </span>
-
+                                            <span>Travelers</span>
                                             <strong>
                                                 {booking.travelers}
                                             </strong>
-
                                         </div>
 
+                                        <div>
+                                            <span>Duration</span>
+                                            <strong>
+                                                {booking.trip?.duration}
+                                            </strong>
+                                        </div>
 
                                         <div>
-
-                                            <span>
-                                                Guest
-                                            </span>
-
+                                            <span>Price</span>
                                             <strong>
-                                                {booking.name}
+                                                ${Number(
+                                                    booking.trip?.price || 0
+                                                ).toLocaleString()}
                                             </strong>
-
                                         </div>
 
                                     </div>
 
-                                </article>
 
-                            ))}
+                                    {booking.message && (
+                                        <div className="my-booking-card__message">
 
-                        </div>
+                                            <span>Your message</span>
 
-                    )}
+                                            <p>
+                                                {booking.message}
+                                            </p>
 
-                </div>
+                                        </div>
+                                    )}
 
-            </section>
+                                </div>
+
+                            </article>
+
+                        ))}
+
+                    </div>
+
+                )}
+
+            </div>
 
         </main>
     );

@@ -1,87 +1,88 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TripCard from "../components/TripCard";
 
-const trips = [
-    {
-        id: 1,
-        name: "Mediterranean Escape",
-        location: "Italy & Greece",
-        category: "Europe",
-        duration: "8 Days",
-        price: "$1,890",
-        image:
-            "https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=1200&q=85",
-    },
-
-    {
-        id: 2,
-        name: "Island Dream",
-        location: "Bali, Indonesia",
-        category: "Islands",
-        duration: "7 Days",
-        price: "$1,490",
-        image:
-            "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=85",
-    },
-
-    {
-        id: 3,
-        name: "Alpine Adventure",
-        location: "Swiss Alps",
-        category: "Mountains",
-        duration: "6 Days",
-        price: "$1,750",
-        image:
-            "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1200&q=85",
-    },
-
-    {
-        id: 4,
-        name: "Japanese Discovery",
-        location: "Kyoto & Tokyo",
-        category: "Asia",
-        duration: "10 Days",
-        price: "$2,250",
-        image:
-            "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=85",
-    },
-
-    {
-        id: 5,
-        name: "Tropical Escape",
-        location: "Maldives",
-        category: "Islands",
-        duration: "5 Days",
-        price: "$1,680",
-        image:
-            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
-    },
-
-    {
-        id: 6,
-        name: "Wild Patagonia",
-        location: "Argentina",
-        category: "Americas",
-        duration: "9 Days",
-        price: "$2,100",
-        image:
-            "https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=85",
-    },
-];
 
 function Trips() {
 
-    const [activeCategory, setActiveCategory] = useState("All");
+    const [trips, setTrips] = useState([]);
+
+    const [activeCategory, setActiveCategory] =
+        useState("All");
+
+    const [loading, setLoading] = useState(true);
+
+    const [error, setError] = useState("");
+
+
+    // Get trips from Laravel
+
+    useEffect(() => {
+
+        async function fetchTrips() {
+
+            try {
+
+                const response = await fetch(
+                    "http://127.0.0.1:8000/api/trips",
+                    {
+                        headers: {
+                            "Accept": "application/json",
+                        },
+                    }
+                );
+
+
+                const data = await response.json();
+                
+
+
+                if (!response.ok) {
+
+                    setError(
+                        data.message ||
+                        "Unable to load trips."
+                    );
+
+                    return;
+                }
+
+
+                setTrips(data.data);
+
+
+            } catch (error) {
+
+                setError(
+                    "Unable to connect to the server."
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+        }
+
+
+        fetchTrips();
+
+    }, []);
+
+
+    // Filter trips
 
     const filteredTrips =
         activeCategory === "All"
             ? trips
             : trips.filter(
-                  (trip) => trip.category === activeCategory
-              );
+                (trip) =>
+                    trip.location === activeCategory
+            );
+
 
     return (
         <main className="trips-page">
+
 
             {/* Hero */}
 
@@ -110,9 +111,12 @@ function Trips() {
 
                         </div>
 
+
                         <div className="trips-page__hero-stat">
 
-                            <strong>24+</strong>
+                            <strong>
+                                {trips.length}+
+                            </strong>
 
                             <span>
                                 curated journeys
@@ -191,27 +195,51 @@ function Trips() {
                     </div>
 
 
+                    {/* Loading */}
+
+                    {loading && (
+
+                        <p>
+                            Loading trips...
+                        </p>
+
+                    )}
+
+
+                    {/* Error */}
+
+                    {!loading && error && (
+
+                        <p className="login-form__error">
+                            {error}
+                        </p>
+
+                    )}
+
+
                     {/* Trip Cards */}
 
-                    <div className="trips-list__grid">
+                    {!loading && !error && (
 
-                        {filteredTrips.map((trip) => (
+                        <div className="trips-list__grid">
 
-                            <TripCard
-                                key={trip.id}
-                                tripId={trip.id}
-                                image={trip.image}
-                                title={trip.name}
-                                location={trip.location}
-                                duration={trip.duration}
-                                price={trip.price}
-                                
-                            />
-                            
+                            {filteredTrips.map((trip) => (
 
-                        ))}
+                                <TripCard
+                                    key={trip.id}
+                                    tripId={trip.id}
+                                    image={trip.image}
+                                    title={trip.title}
+                                    location={trip.location}
+                                    duration={trip.duration}
+                                    price={trip.price}
+                                />
 
-                    </div>
+                            ))}
+
+                        </div>
+
+                    )}
 
                 </div>
 
@@ -253,5 +281,6 @@ function Trips() {
         </main>
     );
 }
+
 
 export default Trips;

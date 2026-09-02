@@ -1,37 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-const trips = [
-    {
-        id: 1,
-        title: "Mediterranean Escape",
-        location: "Italy & Greece",
-        duration: "8 Days",
-        price: "$1,890",
-    },
-    {
-        id: 2,
-        title: "Island Dream",
-        location: "Bali, Indonesia",
-        duration: "7 Days",
-        price: "$1,490",
-    },
-    {
-        id: 3,
-        title: "Alpine Adventure",
-        location: "Swiss Alps",
-        duration: "6 Days",
-        price: "$1,750",
-    },
-];
 
 function Booking() {
 
     const { tripId } = useParams();
 
-    const trip = trips.find(
-        (item) => item.id === Number(tripId)
-    );
+
+    const [trip, setTrip] = useState(null);
+
+    const [loading, setLoading] = useState(true);
+
+    const [error, setError] = useState("");
+
+    const [submitted, setSubmitted] = useState(false);
+
 
     const [formData, setFormData] = useState({
         name: "",
@@ -41,59 +24,224 @@ function Booking() {
         message: "",
     });
 
-    const [submitted, setSubmitted] = useState(false);
+
+    // Fetch Trip
+
+    useEffect(() => {
+
+        async function fetchTrip() {
+
+            try {
+
+                const response = await fetch(
+                    `http://127.0.0.1:8000/api/trips/${tripId}`,
+                    {
+                        headers: {
+                            "Accept": "application/json",
+                        },
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                if (!response.ok) {
+
+                    setError(
+                        data.message ||
+                        "Unable to load trip."
+                    );
+
+                    return;
+                }
+
+
+                setTrip(data.data);
+
+
+            } catch (error) {
+
+                setError(
+                    "Unable to connect to the server."
+                );
+
+
+            } finally {
+
+                setLoading(false);
+            }
+        }
+
+
+        fetchTrip();
+
+    }, [tripId]);
+
+
+    // Handle Input Changes
 
     function handleChange(event) {
 
         const { name, value } = event.target;
+
 
         setFormData((previous) => ({
             ...previous,
             [name]: value,
         }));
     }
-function handleSubmit(event) {
-
-    event.preventDefault();
-
-    const booking = {
-        id: Date.now(),
-
-        tripId: trip.id,
-        tripTitle: trip.title,
-        location: trip.location,
-        duration: trip.duration,
-        price: trip.price,
-
-        name: formData.name,
-        email: formData.email,
-        date: formData.date,
-        travelers: formData.travelers,
-        message: formData.message,
-    };
-
-    const existingBookings =
-        JSON.parse(localStorage.getItem("bookings")) || [];
-
-    localStorage.setItem(
-        "bookings",
-        JSON.stringify([
-            ...existingBookings,
-            booking
-        ])
-    );
-
-    setSubmitted(true);
-}
 
 
-    if (!trip) {
+    // Submit Booking
+
+    async function handleSubmit(event) {
+
+        event.preventDefault();
+
+        setError("");
+
+
+        const token =
+            localStorage.getItem("token");
+
+
+        if (!token) {
+
+            setError(
+                "Please login before booking a trip."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/api/bookings",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+
+                    body: JSON.stringify({
+
+                        trip_id: Number(tripId),
+
+                        travel_date: formData.date,
+
+                        travelers: Number(
+                            formData.travelers
+                        ),
+
+                        message: formData.message,
+                    }),
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok) {
+
+                if (data.errors) {
+
+                    const firstError =
+                        Object.values(data.errors)[0]?.[0];
+
+
+                    setError(
+                        firstError ||
+                        "Please check your booking details."
+                    );
+
+                } else {
+
+                    setError(
+                        data.message ||
+                        "Booking failed."
+                    );
+                }
+
+                return;
+            }
+
+
+            setSubmitted(true);
+
+
+        } catch (error) {
+
+            setError(
+                "Unable to connect to the server."
+            );
+        }
+    }
+
+
+    // Loading
+
+    if (loading) {
+
         return (
+
             <main className="booking-not-found">
 
                 <div className="container">
 
-                    <h1>Trip not found</h1>
+                    <h1>
+                        Loading trip...
+                    </h1>
+
+                </div>
+
+            </main>
+        );
+    }
+
+
+    // Trip Not Found
+
+    if (error && !trip) {
+
+        return (
+
+            <main className="booking-not-found">
+
+                <div className="container">
+
+                    <h1>
+                        Trip not found
+                    </h1>
+
+                    <p>
+                        {error}
+                    </p>
+
+                </div>
+
+            </main>
+        );
+    }
+
+
+    if (!trip) {
+
+        return (
+
+            <main className="booking-not-found">
+
+                <div className="container">
+
+                    <h1>
+                        Trip not found
+                    </h1>
 
                     <p>
                         Sorry, we couldn't find this trip.
@@ -105,8 +253,13 @@ function handleSubmit(event) {
         );
     }
 
+
     return (
+
         <main className="booking-page">
+
+
+            {/* Hero */}
 
             <section className="booking-page__hero">
 
@@ -137,6 +290,7 @@ function handleSubmit(event) {
 
                     <div className="booking__layout">
 
+
                         {/* Trip Summary */}
 
                         <aside className="booking__summary">
@@ -153,21 +307,37 @@ function handleSubmit(event) {
                                 {trip.location}
                             </p>
 
+
                             <div className="booking__summary-details">
 
+
                                 <div>
-                                    <span>Duration</span>
+
+                                    <span>
+                                        Duration
+                                    </span>
+
                                     <strong>
                                         {trip.duration}
                                     </strong>
+
                                 </div>
 
+
                                 <div>
-                                    <span>Starting from</span>
+
+                                    <span>
+                                        Starting from
+                                    </span>
+
                                     <strong>
-                                        {trip.price}
+                                        ${Number(
+                                            trip.price
+                                        ).toLocaleString()}
                                     </strong>
+
                                 </div>
+
 
                             </div>
 
@@ -178,28 +348,41 @@ function handleSubmit(event) {
 
                         <div className="booking__form-wrapper">
 
+
                             {submitted ? (
 
                                 <div className="booking__success">
+
 
                                     <div className="booking__success-icon">
                                         ✓
                                     </div>
 
+
                                     <p className="booking__summary-label">
                                         BOOKING REQUEST SENT
                                     </p>
 
+
                                     <h2>
+
                                         Your journey
-                                        <span> starts here.</span>
+
+                                        <span>
+                                            starts here.
+                                        </span>
+
                                     </h2>
 
+
                                     <p>
+
                                         Thank you, {formData.name}.
                                         We've received your booking
                                         request for {trip.title}.
+
                                     </p>
+
 
                                     <button
                                         onClick={() =>
@@ -209,14 +392,28 @@ function handleSubmit(event) {
                                         Edit booking
                                     </button>
 
+
                                 </div>
 
                             ) : (
+
 
                                 <form
                                     className="booking__form"
                                     onSubmit={handleSubmit}
                                 >
+
+
+                                    {/* Backend Error */}
+
+                                    {error && (
+
+                                        <p className="booking__error">
+                                            {error}
+                                        </p>
+
+                                    )}
+
 
                                     <div className="booking__form-heading">
 
@@ -225,14 +422,22 @@ function handleSubmit(event) {
                                         </p>
 
                                         <h2>
+
                                             Tell us about
-                                            <span> your trip.</span>
+
+                                            <span>
+                                                your trip.
+                                            </span>
+
                                         </h2>
 
                                     </div>
 
 
                                     <div className="booking__fields">
+
+
+                                        {/* Name */}
 
                                         <div className="booking__field">
 
@@ -253,6 +458,8 @@ function handleSubmit(event) {
                                         </div>
 
 
+                                        {/* Email */}
+
                                         <div className="booking__field">
 
                                             <label htmlFor="email">
@@ -272,6 +479,8 @@ function handleSubmit(event) {
                                         </div>
 
 
+                                        {/* Travel Date */}
+
                                         <div className="booking__field">
 
                                             <label htmlFor="date">
@@ -290,6 +499,8 @@ function handleSubmit(event) {
                                         </div>
 
 
+                                        {/* Travelers */}
+
                                         <div className="booking__field">
 
                                             <label htmlFor="travelers">
@@ -302,6 +513,7 @@ function handleSubmit(event) {
                                                 value={formData.travelers}
                                                 onChange={handleChange}
                                             >
+
                                                 <option value="1">
                                                     1 traveler
                                                 </option>
@@ -322,13 +534,72 @@ function handleSubmit(event) {
                                                     5 travelers
                                                 </option>
 
-                                                <option value="6+">
-                                                    6+ travelers
+                                                <option value="6">
+                                                    6 travelers
                                                 </option>
+
+                                                <option value="7">
+                                                    7 travelers
+                                                </option>
+
+                                                <option value="8">
+                                                    8 travelers
+                                                </option>
+
+                                                <option value="9">
+                                                    9 travelers
+                                                </option>
+
+                                                <option value="10">
+                                                    10 travelers
+                                                </option>
+
+                                                <option value="11">
+                                                    11 travelers
+                                                </option>
+
+                                                <option value="12">
+                                                    12 travelers
+                                                </option>
+
+                                                <option value="13">
+                                                    13 travelers
+                                                </option>
+
+                                                <option value="14">
+                                                    14 travelers
+                                                </option>
+
+                                                <option value="15">
+                                                    15 travelers
+                                                </option>
+
+                                                <option value="16">
+                                                    16 travelers
+                                                </option>
+
+                                                <option value="17">
+                                                    17 travelers
+                                                </option>
+
+                                                <option value="18">
+                                                    18 travelers
+                                                </option>
+
+                                                <option value="19">
+                                                    19 travelers
+                                                </option>
+
+                                                <option value="20">
+                                                    20 travelers
+                                                </option>
+
                                             </select>
 
                                         </div>
 
+
+                                        {/* Message */}
 
                                         <div className="booking__field booking__field--full">
 
@@ -347,6 +618,7 @@ function handleSubmit(event) {
 
                                         </div>
 
+
                                     </div>
 
 
@@ -354,9 +626,15 @@ function handleSubmit(event) {
                                         type="submit"
                                         className="booking__submit"
                                     >
+
                                         Send booking request
-                                        <span>↗</span>
+
+                                        <span>
+                                            ↗
+                                        </span>
+
                                     </button>
+
 
                                 </form>
 
@@ -373,5 +651,6 @@ function handleSubmit(event) {
         </main>
     );
 }
+
 
 export default Booking;

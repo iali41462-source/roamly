@@ -22,7 +22,7 @@ function TripDetails() {
             try {
 
                 const response = await fetch(
-                    `http://127.0.0.1:8000/api/trips/${tripId}`,
+                    `${import.meta.env.VITE_API_URL}/api/trips/${tripId}`,
                     {
                         headers: {
                             "Accept": "application/json",

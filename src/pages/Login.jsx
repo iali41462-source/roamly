@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-
 function Login() {
 
     const navigate = useNavigate();
@@ -10,22 +9,19 @@ function Login() {
     const [password, setPassword] = useState("");
 
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
 
 
-    async function handleSubmit(event) {
+    function handleSubmit(event) {
 
         event.preventDefault();
 
         setError("");
-        setLoading(true);
 
 
         // Email validation
 
         if (!email.includes("@")) {
             setError("Please enter a valid email address.");
-            setLoading(false);
             return;
         }
 
@@ -34,80 +30,35 @@ function Login() {
 
         if (password.length < 6) {
             setError("Password must be at least 6 characters.");
-            setLoading(false);
             return;
         }
 
 
-        try {
+        // Get signup user
 
-            const response = await fetch(
-                "http://127.0.0.1:8000/api/login",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                    },
-
-                    body: JSON.stringify({
-                        email: email,
-                        password: password,
-                    }),
-                }
-            );
+        const savedEmail = localStorage.getItem("userEmail");
+        const savedPassword = localStorage.getItem("userPassword");
+        const username = localStorage.getItem("user");
 
 
-            const data = await response.json();
 
+        // Check credentials
 
-            // Laravel validation / login error
-
-            if (!response.ok) {
-
-                setError(
-                    data.message ||
-                    "Invalid email or password."
-                );
-
-                setLoading(false);
-                return;
-            }
-
-
-            // Login successful
-
-            localStorage.setItem(
-                "token",
-                data.token
-            );
-
-            localStorage.setItem(
-                "user",
-                JSON.stringify(data.user)
-            );
-
-            localStorage.setItem(
-                "isLoggedIn",
-                "true"
-            );
-
-
-            navigate("/");
-
-
-        } catch (error) {
-
-            setError(
-                "Unable to connect to the server."
-            );
-
-        } finally {
-
-            setLoading(false);
-
+        if (
+            email !== savedEmail ||
+            password !== savedPassword
+        ) {
+            setError("Invalid email or password.");
+            return;
         }
+
+
+        // Login successful
+
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("Email", "true");
+
+        navigate("/");
     }
 
 
@@ -233,9 +184,8 @@ function Login() {
                     <button
                         type="submit"
                         className="login-form__button"
-                        disabled={loading}
                     >
-                        {loading ? "Signing in..." : "Sign in"}
+                        Sign in
                     </button>
 
                 </form>
@@ -256,6 +206,5 @@ function Login() {
         </main>
     );
 }
-
 
 export default Login;

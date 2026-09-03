@@ -21,7 +21,7 @@ function MyBookings() {
             try {
 
                 const response = await fetch(
-                    "http://127.0.0.1:8000/api/bookings",
+                    `${import.meta.env.VITE_API_URL}/api/bookings`,
                     {
                         headers: {
                             "Accept": "application/json",

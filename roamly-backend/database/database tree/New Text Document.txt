@@ -1,0 +1,77 @@
+users
+├── id
+├── name
+├── email
+├── password
+└── ...
+
+destinations
+├── id
+├── name
+├── location
+├── description
+├── image
+└── timestamps
+
+trips
+├── id
+├── destination_id
+├── title
+├── location
+├── duration
+├── price
+├── description
+├── image
+└── timestamps
+
+bookings
+├── id
+├── user_id
+├── trip_id
+├── travel_date
+├── travelers
+├── message
+├── status
+└── timestamps
+
+
+Ab complete relationship:
+
+                    Destination
+                         │
+                      hasMany
+                         ↓
+                        Trip
+                     ↙       ↘
+              belongsTo     hasMany
+                  ↓             ↓
+            Destination      Booking
+                               ↙   ↘
+                         belongsTo  belongsTo
+                             ↓          ↓
+                           User       Trip
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+Ab Destination ka architecture complete hai
+                  DESTINATION
+                       │
+        ┌──────────────┼──────────────┐
+        ↓              ↓              ↓
+     Request       Controller       Resource
+        ↓              ↓              ↓
+    Validation      Model          JSON
+                       ↓
+                    MySQL
+
+complete Step to configure 
+Migration
+→ Model + Relationship
+→ Store/Update Form Requests
+→ API Resource
+→ Resource Controller
+→ apiResource Route
+→ Postman Testing

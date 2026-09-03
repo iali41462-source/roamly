@@ -11,7 +11,7 @@ function Login() {
     const [error, setError] = useState("");
 
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
 
         event.preventDefault();
 
@@ -34,31 +34,65 @@ function Login() {
         }
 
 
-        // Get signup user
+        try {
 
-        const savedEmail = localStorage.getItem("userEmail");
-        const savedPassword = localStorage.getItem("userPassword");
-        const username = localStorage.getItem("user");
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/login`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
+
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                    }),
+                }
+            );
 
 
+            const data = await response.json();
 
-        // Check credentials
 
-        if (
-            email !== savedEmail ||
-            password !== savedPassword
-        ) {
-            setError("Invalid email or password.");
-            return;
+            // Login failed
+
+            if (!response.ok) {
+                setError(
+                    data.message || "Invalid email or password."
+                );
+                return;
+            }
+
+
+            // Login successful
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("isLoggedIn", "true");
+
+            if (data.user) {
+                localStorage.setItem(
+                    "userName",
+                    data.user.name
+                );
+
+                localStorage.setItem(
+                    "userEmail",
+                    data.user.email
+                );
+            }
+
+
+            navigate("/");
+
+
+        } catch (error) {
+
+            setError("Unable to connect to the server.");
+
         }
-
-
-        // Login successful
-
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("Email", "true");
-
-        navigate("/");
     }
 
 

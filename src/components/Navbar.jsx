@@ -79,9 +79,12 @@ const userEmail = localStorage.getItem("userEmail") || "email";
 
             <div className="container navbar__inner">
 
+                {/* Logo */}
+
                 <Link
                     to="/"
                     className="navbar__logo"
+                    onClick={() => setMenuOpen(false)}
                 >
                     Roamly
                 </Link>
@@ -95,6 +98,9 @@ const userEmail = localStorage.getItem("userEmail") || "email";
                     }`}
                 >
 
+
+                    {/* Home */}
+
                     <Link
                         to="/"
                         onClick={() =>
@@ -104,41 +110,47 @@ const userEmail = localStorage.getItem("userEmail") || "email";
                         Home
                     </Link>
 
-                    <a
-                        href="#destinations"
+                    <Link
+                        to="/destinations"
                         onClick={() =>
                             setMenuOpen(false)
                         }
                     >
                         Destinations
-                    </a>
+                    </Link>
 
-                    <a
-                        href="#experiences"
+                 <Link
+                        to="/#experiences"
                         onClick={() =>
                             setMenuOpen(false)
                         }
                     >
                         Experiences
-                    </a>
+                    </Link>
 
-                    <a
-                        href="#trips"
+          {/* Trips Page */}
+
+                    <Link
+                        to="/trips"
                         onClick={() =>
                             setMenuOpen(false)
                         }
                     >
                         Trips
-                    </a>
+                    </Link>
 
-                    <a
-                        href="#about"
+
+
+                    {/* About Section */}
+
+                    <Link
+                        to="/#about"
                         onClick={() =>
                             setMenuOpen(false)
                         }
                     >
                         About
-                    </a>
+                    </Link>
 
                 </div>
 

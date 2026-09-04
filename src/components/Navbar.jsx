@@ -16,19 +16,11 @@ function Navbar() {
 
     // Get logged-in user
 
-    const savedUser =
-        localStorage.getItem("user");
-
-    const user = savedUser
-        ? JSON.parse(savedUser)
-        : null;
 
 
-    const userName =
-        user?.name || "User";
+const userName = localStorage.getItem("userName") || "User";
 
-    const userEmail =
-        user?.email || "";
+const userEmail = localStorage.getItem("userEmail") || "email";
 
 
     // Logout
@@ -69,9 +61,8 @@ function Navbar() {
             // Remove authentication data
 
             localStorage.removeItem("token");
-
-            localStorage.removeItem("user");
-
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userEmail");
             localStorage.removeItem("isLoggedIn");
 
 

@@ -151,6 +151,15 @@ const userEmail = localStorage.getItem("userEmail") || "email";
                     >
                         About
                     </Link>
+                        {!isLoggedIn && (
+        <Link
+            to="/login"
+            className="navbar__mobile-login"
+            onClick={() => setMenuOpen(false)}
+        >
+            Login
+        </Link>
+    )}
 
                 </div>
 

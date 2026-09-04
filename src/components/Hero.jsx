@@ -7,7 +7,8 @@ function Hero() {
             <p className="hero__eyebrow">DISCOVER YOUR NEXT ADVENTURE</p>
 
             <h1 className="hero__title">
-              Explore the world
+              Explore the world Adeela Riaz 
+              
               <span> beyond the ordinary.</span>
             </h1>
 

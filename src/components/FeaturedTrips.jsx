@@ -2,7 +2,7 @@ import TripCard from "./TripCard";
 
 const trips = [
     {
-        id: 1,
+        id: 5,
         title: "Swiss Alpine Escape",
         location: "Switzerland",
         duration: "7 Days",
@@ -11,7 +11,7 @@ const trips = [
         featured: true
     },
     {
-        id: 2,
+        id: 6,
         title: "Bali Discovery",
         location: "Indonesia",
         duration: "5 Days",
@@ -20,7 +20,7 @@ const trips = [
         featured: false
     },
     {
-        id: 3,
+        id: 7,
         title: "Greek Island Escape",
         location: "Greece",
         duration: "6 Days",
@@ -62,6 +62,7 @@ function FeaturedTrips() {
                     {trips.map((trip) => (
                         <TripCard
                             key={trip.id}
+                            tripId={trip.id}
                             image={trip.image}
                             title={trip.title}
                             location={trip.location}

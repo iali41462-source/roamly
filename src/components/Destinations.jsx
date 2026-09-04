@@ -2,7 +2,7 @@ import DestinationCard from "./DestinationCard";
 
 const destinations = [
     {
-        id: 1,
+        id: 6,
         name: "Bali",
         country: "Indonesia",
         description: "Tropical landscapes, quiet beaches and unforgettable sunsets.",
@@ -16,7 +16,7 @@ const destinations = [
         image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=900&q=85"
     },
     {
-        id: 3,
+        id: 4,
         name: "Santorini",
         country: "Greece",
         description: "Whitewashed villages, blue seas and unforgettable island moments.",
@@ -56,6 +56,7 @@ function Destinations() {
                     {destinations.map((destination) => (
                         <DestinationCard
                             key={destination.id}
+                            slug={destination.name}
                             image={destination.image}
                             name={destination.name}
                             country={destination.country}

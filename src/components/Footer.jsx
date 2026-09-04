@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 function Footer() {
     return (
         <footer className="footer">
@@ -29,17 +30,18 @@ function Footer() {
 
                             <h3>Explore</h3>
 
-                            <a href="#destinations">
+                            <Link to="/destinations">
                                 Destinations
-                            </a>
+                            </Link>
 
-                            <a href="#experiences">
+                            <Link to="/#experiences">
                                 Experiences
-                            </a>
+                            </Link>
 
-                            <a href="#trips">
+                            <Link to="/trips">
                                 Featured Trips
-                            </a>
+                            </Link>
+
 
                         </div>
 
@@ -47,17 +49,17 @@ function Footer() {
 
                             <h3>Company</h3>
 
-                            <a href="#about">
+                            <Link to="/#about">
                                 About Roamly
-                            </a>
+                            </Link>
 
-                            <a href="#stories">
+                            <Link to="/#stories">
                                 Traveler Stories
-                            </a>
+                            </Link>
 
-                            <a href="#contact">
+                            <Link to="/#contact">
                                 Contact
-                            </a>
+                            </Link>
 
                         </div>
 

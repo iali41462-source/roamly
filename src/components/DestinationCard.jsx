@@ -29,12 +29,12 @@ function DestinationCard({ image, name, country, slug, description }) {
                     href="#explore"
                     className="destination-card__link"
                 >
-                    Explore
+                    
                     <Link
     to={`/destinations/${slug}`}
     className="destination-card__link"
 >
-    ↗
+    Explore↗
 </Link>
                     
                 </a>

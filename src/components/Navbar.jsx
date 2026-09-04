@@ -144,7 +144,7 @@ const userEmail = localStorage.getItem("userEmail") || "email";
                     {/* About Section */}
 
                     <Link
-                        to="/#about"
+                        to="/about"
                         onClick={() =>
                             setMenuOpen(false)
                         }

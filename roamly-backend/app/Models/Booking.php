@@ -19,6 +19,9 @@ class Booking extends Model
         'travelers',
         'message',
         'status',
+        'payment_status',
+        'payment_tracker',
+        'payment_id',
     ];
 
 

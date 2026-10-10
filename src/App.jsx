@@ -12,6 +12,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import MainLayout from "./layouts/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
 
 
 function App() {
@@ -53,6 +55,8 @@ function App() {
                 </Route>
                  <Route path="/signup" element={<Signup />}/>
                 <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ResetPassword />}/> 
+               <Route path="/forgot-password" element={<ForgotPassword />}/>
 
             </Routes>
                

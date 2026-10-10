@@ -15,7 +15,6 @@ function Booking() {
 
     const [submitted, setSubmitted] = useState(false);
 
-
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -93,7 +92,7 @@ function Booking() {
     }
 
 
-    // Submit Booking
+    // Submit Booking + Payment
 
     async function handleSubmit(event) {
 
@@ -118,7 +117,9 @@ function Booking() {
 
         try {
 
-            const response = await fetch(
+            // Step 1: Create Booking
+
+            const bookingResponse = await fetch(
                 `${import.meta.env.VITE_API_URL}/api/bookings`,
                 {
                     method: "POST",
@@ -145,15 +146,18 @@ function Booking() {
             );
 
 
-            const data = await response.json();
+            const bookingData =
+                await bookingResponse.json();
 
 
-            if (!response.ok) {
+            if (!bookingResponse.ok) {
 
-                if (data.errors) {
+                if (bookingData.errors) {
 
                     const firstError =
-                        Object.values(data.errors)[0]?.[0];
+                        Object.values(
+                            bookingData.errors
+                        )[0]?.[0];
 
 
                     setError(
@@ -164,7 +168,7 @@ function Booking() {
                 } else {
 
                     setError(
-                        data.message ||
+                        bookingData.message ||
                         "Booking failed."
                     );
                 }
@@ -173,7 +177,46 @@ function Booking() {
             }
 
 
-            setSubmitted(true);
+            // Get newly created booking ID
+
+            const bookingId =
+                bookingData.data.id;
+
+
+            // Step 2: Create Payment
+
+            const paymentResponse = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/bookings/${bookingId}/payment`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Accept": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                }
+            );
+
+
+            const paymentData =
+                await paymentResponse.json();
+
+
+            if (!paymentResponse.ok) {
+
+                setError(
+                    paymentData.message ||
+                    "Unable to start payment."
+                );
+
+                return;
+            }
+
+
+            // Step 3: Redirect to Safepay
+
+            window.location.href =
+                paymentData.checkout_url;
 
 
         } catch (error) {
@@ -627,7 +670,7 @@ function Booking() {
                                         className="booking__submit"
                                     >
 
-                                        Send booking request
+                                        Proceed to payment
 
                                         <span>
                                             ↗

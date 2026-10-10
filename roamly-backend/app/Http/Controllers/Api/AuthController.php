@@ -10,6 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+use Illuminate\Support\Facades\Password;
+
+use Illuminate\Validation\Rules\Password as PasswordRule;
+
 class AuthController extends Controller
 {
     /**
@@ -69,4 +73,68 @@ class AuthController extends Controller
             'message' => 'Logged out successfully.',
         ]);
     }
+    // Forgot password
+    public function forgotPassword(Request $request)
+{
+    $request->validate([
+        'email' => ['required', 'email'],
+    ]);
+
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    if ($status === Password::RESET_LINK_SENT) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset link has been sent to your email.',
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Unable to send password reset link.',
+    ], 422);
+}
+public function resetPassword(Request $request)
+{
+    $request->validate([
+        'token' => ['required'],
+        'email' => ['required', 'email'],
+        'password' => [
+            'required',
+            'confirmed',
+            PasswordRule::min(6),
+        ],
+    ]);
+
+    $status = Password::reset(
+        $request->only(
+            'email',
+            'password',
+            'password_confirmation',
+            'token'
+        ),
+        function ($user, $password) {
+
+            $user->forceFill([
+                'password' => Hash::make($password),
+            ])->save();
+
+            $user->tokens()->delete();
+        }
+    );
+
+    if ($status === Password::PASSWORD_RESET) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Password has been reset successfully.',
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Invalid or expired password reset link.',
+    ], 422);
+}
 }

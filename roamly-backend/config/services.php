@@ -13,6 +13,18 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    'safepay' => [
+
+    'public_key' => env('SAFE_PAY_PUBLIC_KEY'),
+
+    'secret_key' => env('SAFE_PAY_SECRET_KEY'),
+
+    'api_url' => env(
+        'SAFE_PAY_API_URL',
+        'https://sandbox.api.getsafepay.com'
+    ),
+
+],
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),

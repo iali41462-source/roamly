@@ -37,6 +37,7 @@ function Login() {
         try {
 
             const response = await fetch(
+                
                 `${import.meta.env.VITE_API_URL}/api/login`,
                 {
                     method: "POST",
@@ -52,7 +53,8 @@ function Login() {
                     }),
                 }
             );
-
+            console.log("Fetch completed");
+            console.log("Status:", response.status);
 
             const data = await response.json();
 
@@ -97,147 +99,90 @@ function Login() {
 
 
     return (
-        <main className="login-page">
+      <main className="login-page">
+        <div className="login-page__content">
+          <div className="login-page__brand">
+            <span>Roamly</span>
+          </div>
 
-            <div className="login-page__content">
+          <div className="login-page__heading">
+            <p>WELCOME BACK</p>
 
-                <div className="login-page__brand">
-                    <span>Roamly</span>
-                </div>
+            <h1>
+              Your next adventure
+              <span> starts here.</span>
+            </h1>
 
-                <div className="login-page__heading">
+            <p>
+              Sign in to continue exploring beautiful places and unforgettable
+              experiences.
+            </p>
+          </div>
+        </div>
 
-                    <p>WELCOME BACK</p>
+        <div className="login-page__card">
+          <div className="login-page__header">
+            <Link to="/" className="login__back">
+              ← Back to Roamly
+            </Link>
 
-                    <h1>
-                        Your next adventure
-                        <span> starts here.</span>
-                    </h1>
+            <h2>Welcome back</h2>
 
-                    <p>
-                        Sign in to continue exploring beautiful places
-                        and unforgettable experiences.
-                    </p>
+            <p>Sign in to your Roamly account</p>
+          </div>
 
-                </div>
+          <form className="login-form" onSubmit={handleSubmit}>
+            {error && <p className="login-form__error">{error}</p>}
 
+            <div className="login-form__group">
+              <label htmlFor="email">Email address</label>
+
+              <input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
             </div>
 
+            <div className="login-form__group">
+              <label htmlFor="password">Password</label>
 
-            <div className="login-page__card">
-
-                <div className="login-page__header">
-
-                    <Link
-                        to="/"
-                        className="login__back"
-                    >
-                        ← Back to Roamly
-                    </Link>
-
-                    <h2>Welcome back</h2>
-
-                    <p>
-                        Sign in to your Roamly account
-                    </p>
-
-                </div>
-
-
-                <form
-                    className="login-form"
-                    onSubmit={handleSubmit}
-                >
-
-                    {error && (
-                        <p className="login-form__error">
-                            {error}
-                        </p>
-                    )}
-
-
-                    <div className="login-form__group">
-
-                        <label htmlFor="email">
-                            Email address
-                        </label>
-
-                        <input
-                            id="email"
-                            type="email"
-                            placeholder="you@example.com"
-                            value={email}
-                            onChange={(event) =>
-                                setEmail(event.target.value)
-                            }
-                            required
-                        />
-
-                    </div>
-
-
-                    <div className="login-form__group">
-
-                        <label htmlFor="password">
-                            Password
-                        </label>
-
-                        <input
-                            id="password"
-                            type="password"
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={(event) =>
-                                setPassword(event.target.value)
-                            }
-                            required
-                        />
-
-                    </div>
-
-
-                    <div className="login-form__options">
-
-                        <label className="login-form__remember">
-
-                            <input type="checkbox" />
-
-                            <span>
-                                Remember me
-                            </span>
-
-                        </label>
-
-                        <a href="#forgot">
-                            Forgot password?
-                        </a>
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        className="login-form__button"
-                    >
-                        Sign in
-                    </button>
-
-                </form>
-
-
-                <p className="login-page__signup">
-
-                    Don't have an account?
-
-                    <Link to="/signup">
-                        {" "}Create account
-                    </Link>
-
-                </p>
-
+              <input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
             </div>
 
-        </main>
+            <div className="login-form__options">
+              <label className="login-form__remember">
+                <input type="checkbox" />
+
+                <span>Remember me</span>
+              </label>
+
+              <Link to="/forgot-password">
+              Forgot password?
+              </Link>
+            </div>
+
+            <button type="submit" className="login-form__button">
+              Sign in
+            </button>
+          </form>
+
+          <p className="login-page__signup">
+            Don't have an account?
+            <Link to="/signup"> Create account</Link>
+          </p>
+        </div>
+      </main>
     );
 }
 

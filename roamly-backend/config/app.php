@@ -12,7 +12,9 @@ return [
     | other UI elements where an application name needs to be displayed.
     |
     */
-
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+    'FRONTEND_URL',
+    'https://roamly-npcu.onrender.com',
     'name' => env('APP_NAME', 'Laravel'),
 
     /*

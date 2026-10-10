@@ -74,28 +74,47 @@ class AuthController extends Controller
         ]);
     }
     // Forgot password
+
+    // Forgot password
     public function forgotPassword(Request $request)
-{
-    $request->validate([
-        'email' => ['required', 'email'],
-    ]);
-
-    $status = Password::sendResetLink(
-        $request->only('email')
-    );
-
-    if ($status === Password::RESET_LINK_SENT) {
-        return response()->json([
-            'success' => true,
-            'message' => 'Password reset link has been sent to your email.',
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
         ]);
+
+        try {
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
+
+            \Illuminate\Support\Facades\Log::info(
+                'Forgot password broker status: ' . $status
+            );
+
+            if ($status === Password::RESET_LINK_SENT) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Password reset link has been sent to your email.',
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to send password reset link.',
+            ], 422);
+
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error(
+                'Forgot password exception: ' . $e->getMessage()
+            );
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to send password reset link.',
+            ], 500);
+        }
     }
 
-    return response()->json([
-        'success' => false,
-        'message' => 'Unable to send password reset link.',
-    ], 422);
-}
 public function resetPassword(Request $request)
 {
     $request->validate([
